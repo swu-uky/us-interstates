@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset=utf-8 />
+	<title>US Interstates</title>
+	<meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+		integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+		crossorigin="" />
+	<link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
+
+	<style>
+		body {
+			margin: 0;
+			padding: 0;
+			background: #000000;
+			color: #ffffff;
+			font-size: 100%;
+		}
+
+		header,
+		section,
+		footer {
+			width: 80%;
+			margin: 10px auto;
+		}
+
+		h1 {
+			font-family: 'Playfair Display', Serif;
+			font-size: 48px;
+			letter-spacing: .04em;
+		}
+
+		h2 {
+			font-family: 'Playfair Display', Serif;
+			font-size: 36px;
+			letter-spacing: .04em;
+		}
+
+		p {
+			font-family: 'Source Sans Pro', Sans-Serif;
+			font-size: 16px;
+			line-height: 1.5em;
+		}
+
+		a {
+			color: #73ff00;
+			font-weight: bold;
+			text-decoration: none;
+		}
+
+		a:hover {
+			text-decoration: underline;
+		}
+
+		ul {
+			font-family: 'Source Sans Pro', Sans-Serif;
+			font-size: 16px;
+			padding-left: 20px;
+		}
+
+		li {
+			margin: 10px 0;
+		}
+
+		hr {
+			margin: 20px 0;
+			border: 0;
+			height: 1px;
+			background: #d3d3d3;
+		}
+
+		.caption {
+			margin: 0 0 20px 0;
+			display: block;
+		}
+
+		#map {
+			width: 100%;
+			height: 500px;
+			margin: 10px auto;
+			border: 2px solid #d3d3d3;
+		}
+
+		.highlight {
+			color: #f05716;
+			font-weight: bold;
+		}
+
+		.img-fill {
+			width: 100%;
+			height: auto;
+			margin: 10px 0;
+		}
+
+		@media screen and (max-width: 900px) {
+
+			.first-column,
+			.second-column {
+				width: 100%;
+			}
+		}
+	</style>
+</head>
+
+<body>
+	<header>
+		<h1></h1>
+	</header>
+
+	<section>
+		<div id='map'></div>
+	</section>
+
+	<section>
+		<button id='get-info'>Get Info</button>
+
+		<h2></h2>
+
+		<p>Shown here is the interstate highway network in the United States.
+			Please click the "Get Info" button to find out more!</p>
+		<ul>
+			<li>See my projects on GitHub: <a href="https://github.com/swu-uky">swu-uky</a></li>
+			<li>Follow me on twitter: <a href="https://twitter.com/MeadowOfHay">@MeadowOfHay</a></li>
+			<li>Follow me on twitter: <a href="https://instagram.com/meadowofhay">@meadowofhay</a></li>
+		</ul>
+	</section>
+
+	<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+	<script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"></script>
+
+	<script>
+		$("h1").html("US Interstate Highways");
+
+		var options = {
+			center: [39.8283, -98.5795],
+			zoom: 4.4,
+			zoomSnap: .1,
+			zoomControl: false
+		}
+
+		var map = L.map('map', options);
+
+		map.addControl(L.control.zoom({
+			position: 'bottomright'
+		}));
+
+		var basemap_source = 'https://cartocdn_{s}.global.ssl.fastly.net/base-antique/{z}/{x}/{y}.png'
+
+		var basemap_options = {
+			attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'
+		};
+
+		// request some basemap tiles and add to the map
+		var tiles = L.tileLayer(basemap_source, basemap_options).addTo(map);
+
+		var button = document.getElementById("get-info");
+
+		button.addEventListener("click", function () {
+
+			do {
+				var units = prompt('Enter the information you seek', 'Enter "class" or "length"');
+			} while (units != "class" && units != "length");
+
+			mapHighways(units);
+		});
+
+		var highwayLayer = $.getJSON("data/us_interstates.json", function (data) {
+
+			var dataLayer = L.geoJson(data, {
+				style: function (feature) {
+					return {
+						color: '#000000',
+						weight: 1,
+					};
+				},
+			}).addTo(map);
+			drawMap(dataLayer);
+		});
+	</script>
+
+</body>
+
+</html>
+
+<script>
