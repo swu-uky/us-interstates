@@ -99,17 +99,17 @@
 	</header>
 
 	<section>
+		<p>Get started by selecting your preferred <button id='units'>Unit of Measurement</button>.</p>
 		<div id='map'></div>
 	</section>
 
 	<section>
-		<button id='units'>Units</button>
 
 		<h2></h2>
 
 		<p>Shown above is the interstate highway network in the United States.<br>
-			The roads will appear after the preferred unit has been selected.<br>
-			Hover over each route to find out more!
+			Hover over each route to find out more!<br>
+			Feel free to click the button again to change units.
 		</p>
 		<p>Data courtesy of <a href="https://geodata.lib.berkeley.edu/catalog/stanford-qn309jc5979" target=blank>GeoData
 				@ UC Berkeley</a>.</p>
@@ -175,17 +175,42 @@
 					onEachFeature: function (feature, layer) {
 						var props = layer.feature.properties;
 						var length = layer.feature.properties[dist];
-						var popup = `<b>${props["route_num"]}</b><br>
+						var popup = `<b>Highway: </b>${props["number"]}<br>
 						<b>Class: </b>${props["class"]}<br>
 						<b>Length: </b>${length} ${unit}`;
 						layer.on('mouseover', function () {
 							layer.bindTooltip(popup, {
-								sticky: true
+								sticky: true //focuses the tooltip at the cursor
 							});
+							this.setStyle({
+								color: 'red',
+								weight: 5
+							})
+						});
+						layer.on('mouseout', function () {
+							this.setStyle({
+								color: '#000000',
+								weight: 1
+							})
 						});
 					}
 				}).addTo(map);
 			});
+		});
+
+		//boundary and state layers for a more defined look of the area in question
+		var boundaryLayer = $.getJSON("data/us_boundary.geojson", function (data) {
+			var borderLayer = L.geoJson(data, {
+				style: function (feature) {
+					return {
+						color: '#000000',
+						weight: 1,
+						fillOpacity: 0,
+						interactive: false
+					};
+				},
+			});
+			borderLayer.addTo(map)
 		});
 
 		var countryLayer = $.getJSON("data/us_states.geojson", function (data) {
@@ -200,20 +225,6 @@
 				},
 			});
 			stateLayer.addTo(map)
-		});
-
-		var boundaryLayer = $.getJSON("data/us_boundary.geojson", function (data) {
-			var borderLayer = L.geoJson(data, {
-				style: function (feature) {
-					return {
-						color: '#000000',
-						weight: 1,
-						fillOpacity: 0,
-						interactive: false
-					};
-				},
-			});
-			borderLayer.addTo(map)
 		});
 	</script>
 
