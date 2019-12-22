@@ -176,10 +176,12 @@
 						var props = layer.feature.properties;
 						var length = layer.feature.properties[dist];
 						var popup = `<b>${props["route_num"]}</b><br>
-					<b>Class: </b>${props["class"]}<br>
-					<b>Length: </b>${length} ${unit}`;
+						<b>Class: </b>${props["class"]}<br>
+						<b>Length: </b>${length} ${unit}`;
 						layer.on('mouseover', function () {
-							layer.bindTooltip(popup);
+							layer.bindTooltip(popup, {
+								sticky: true
+							});
 						});
 					}
 				}).addTo(map);
