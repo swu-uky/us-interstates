@@ -49,7 +49,6 @@
 
 		a {
 			color: #afafaf;
-			font-size: 20px;
 			font-weight: bold;
 		}
 
@@ -104,12 +103,13 @@
 	</section>
 
 	<section>
-		<button id='get-info'>Get Info</button>
+		<button id='units'>Units</button>
 
 		<h2></h2>
 
-		<p>Shown here is the interstate highway network in the United States.
-			Please click the "Get Info" button to find out more!
+		<p>Shown above is the interstate highway network in the United States.<br>
+			The roads will appear after the preferred unit has been selected.<br>
+			Hover over each route to find out more!
 		</p>
 		<p>Data courtesy of <a href="https://geodata.lib.berkeley.edu/catalog/stanford-qn309jc5979" target=blank>GeoData
 				@ UC Berkeley</a>.</p>
@@ -141,37 +141,77 @@
 			position: 'bottomright'
 		}));
 
-		var basemap_source = 'https://cartocdn_{s}.global.ssl.fastly.net/base-antique/{z}/{x}/{y}.png'
+		var basemap_source = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}.png'
 
 		var basemap_options = {
 			attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'
 		};
 
-		// request some basemap tiles and add to the map
 		var tiles = L.tileLayer(basemap_source, basemap_options).addTo(map);
 
-		var button = document.getElementById("get-info");
+		var button = document.getElementById("units");
+
+		var unit = "";
+		var dist = "";
 
 		button.addEventListener("click", function () {
-
 			do {
-				var units = prompt('Enter the information you seek', 'Enter "class" or "length"');
-			} while (units != "class" && units != "length");
-
-			mapHighways(units);
+				var units = prompt('Enter the preferred unit of measurement', 'Enter "miles" or "km"');
+			} while (units != "miles" && units != "km");
+			unit = units;
+			if (unit == "miles") {
+				dist = "dist_miles";
+			} else {
+				dist = "dist_km";
+			}
+			var highwayLayer = $.getJSON("data/us_interstates.json", function (data) {
+				var dataLayer = L.geoJson(data, {
+					style: function (feature) {
+						return {
+							color: '#000000',
+							weight: 1,
+						};
+					},
+					onEachFeature: function (feature, layer) {
+						var props = layer.feature.properties;
+						var length = layer.feature.properties[dist];
+						var popup = `<b>${props["route_num"]}</b><br>
+					<b>Class: </b>${props["class"]}<br>
+					<b>Length: </b>${length} ${unit}`;
+						layer.on('mouseover', function () {
+							layer.bindTooltip(popup);
+						});
+					}
+				}).addTo(map);
+			});
 		});
 
-		var highwayLayer = $.getJSON("data/us_interstates.json", function (data) {
+		var countryLayer = $.getJSON("data/us_states.geojson", function (data) {
+			var stateLayer = L.geoJson(data, {
+				style: function (feature) {
+					return {
+						color: '#afafaf',
+						weight: 0.5,
+						fillOpacity: 0,
+						interactive: false
+					};
+				},
+			});
+			stateLayer.addTo(map)
+		});
 
-			var dataLayer = L.geoJson(data, {
+		var boundaryLayer = $.getJSON("data/us_boundary.geojson", function (data) {
+			var borderLayer = L.geoJson(data, {
 				style: function (feature) {
 					return {
 						color: '#000000',
 						weight: 1,
+						fillOpacity: 0,
+						interactive: false
 					};
 				},
-			}).addTo(map);
-			drawMap(dataLayer);
+			});
+			borderLayer.addTo(map)
 		});
 	</script>
 
