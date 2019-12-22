@@ -107,13 +107,14 @@
 
 		<h2></h2>
 
-		<p>Shown above is the interstate highway network in the United States.<br>
-			Hover over each route to find out more!<br>
-			Feel free to click the button again to change units.
+		<p>Shown above is the interstate highway network in the United States.
+			Most are classified as either an "I" for interstate or a "S" for state route.<br>
+			FUN FACT: even numbered roads run east-west while odd numbered ones go north-south.<br>
+			Hover over each route to find out more! And feel free to click the button again to change units.
 		</p>
-		<p>Data courtesy of <a href="https://geodata.lib.berkeley.edu/catalog/stanford-qn309jc5979" target=blank>GeoData
-				@ UC Berkeley</a>.</p>
-		<p>Background image taken from <a href="https://wallpaperaccess.com/desert-highway"
+		<p>Data courtesy of <a href="https://geodata.lib.berkeley.edu/catalog/stanford-qn309jc5979" target=blank>
+				GeoData @ UC Berkeley</a>.<br>
+			Background image taken from <a href="https://wallpaperaccess.com/desert-highway"
 				target=blank>WallpaperAccess</a>.</p>
 		<ul>
 			<li>See my projects on GitHub: <a href="https://github.com/swu-uky">swu-uky</a></li>
@@ -151,18 +152,15 @@
 
 		var button = document.getElementById("units");
 
-		var unit = "";
-		var dist = "";
-
 		button.addEventListener("click", function () {
 			do {
 				var units = prompt('Enter the preferred unit of measurement', 'Enter "miles" or "km"');
 			} while (units != "miles" && units != "km");
-			unit = units;
-			if (unit == "miles") {
-				dist = "dist_miles";
+
+			if (units == "miles") {
+				var dist = "dist_miles";
 			} else {
-				dist = "dist_km";
+				var dist = "dist_km";
 			}
 			var highwayLayer = $.getJSON("data/us_interstates.json", function (data) {
 				var dataLayer = L.geoJson(data, {
@@ -177,7 +175,7 @@
 						var length = layer.feature.properties[dist];
 						var popup = `<b>Highway: </b>${props["number"]}<br>
 						<b>Class: </b>${props["class"]}<br>
-						<b>Length: </b>${length} ${unit}`;
+						<b>Length: </b>${length} ${units}`;
 						layer.on('mouseover', function () {
 							layer.bindTooltip(popup, {
 								sticky: true //focuses the tooltip at the cursor
