@@ -35,12 +35,6 @@
 			letter-spacing: .04em;
 		}
 
-		h2 {
-			font-family: 'Playfair Display', Serif;
-			font-size: 36px;
-			letter-spacing: .04em;
-		}
-
 		p {
 			font-family: 'Source Sans Pro', Sans-Serif;
 			font-size: 16px;
@@ -50,10 +44,6 @@
 		a {
 			color: #afafaf;
 			font-weight: bold;
-		}
-
-		a:hover {
-			text-decoration: underline;
 		}
 
 		ul {
@@ -66,36 +56,18 @@
 			margin: 10px 0;
 		}
 
-		hr {
-			margin: 20px 0;
-			border: 0;
-			height: 1px;
-			background: #d3d3d3;
-		}
-
-		.caption {
-			margin: 0 0 20px 0;
-			display: block;
-		}
-
 		#map {
 			width: 100%;
 			height: 500px;
 			margin: 10px auto;
 			border: 2px solid #d3d3d3;
 		}
-
-		.img-fill {
-			width: 100%;
-			height: auto;
-			margin: 10px 0;
-		}
 	</style>
 </head>
 
 <body>
 	<header>
-		<h1></h1>
+		<h1>Title Goes Here</h1>
 	</header>
 
 	<section>
@@ -105,15 +77,17 @@
 
 	<section>
 
-		<h2></h2>
-
 		<p>Shown above is the interstate highway network in the United States.
 			Most are classified as either an "I" for interstate or a "S" for state route.<br>
 			FUN FACT: even numbered roads always run east to west while odd numbered ones always go north to south.<br>
 			Hover over each route to find out more! And feel free to click the button again to change units.
 		</p>
-		<p>Data courtesy of <a href="https://geodata.lib.berkeley.edu/catalog/stanford-qn309jc5979" target=blank>
+		<p>Data retrieved from <a href="https://geodata.lib.berkeley.edu/catalog/stanford-qn309jc5979" target=blank>
 				GeoData @ UC Berkeley</a>.<br>
+			Boundary files courtesy of the <a
+				href="https://www.census.gov/geographies/mapping-files/time-series/geo/carto-boundary-file.html"
+				target=blank>
+				US Census Bureau</a>.<br>
 			Background image taken from <a href="https://wallpaperaccess.com/desert-highway"
 				target=blank>WallpaperAccess</a>.</p>
 		<ul>
@@ -130,7 +104,7 @@
 		$("h1").html("US Interstate Highways");
 
 		var options = {
-			center: [39.8283, -98.5795],
+			center: [38, -96],
 			zoom: 4.4,
 			zoomSnap: .1,
 			zoomControl: false
@@ -150,19 +124,27 @@
 
 		var tiles = L.tileLayer(basemap_source, basemap_options).addTo(map);
 
+		var dist = ""; //empty variables to hold information based on the user's input
+		var unit = "";
+
 		var button = document.getElementById("units");
 
 		button.addEventListener("click", function () {
-			do {
-				var units = prompt('Enter the preferred unit of measurement', 'Enter "miles" or "km"');
-			} while (units != "miles" && units != "km" && units != null); //added null option to allow cancelling
+
+			var units = prompt('Enter the preferred unit of measurement',
+				'Enter "miles" or "km"'); //removed the do and while functions to prevent the persistent prompt
 
 			if (units == "miles") {
-				var dist = "dist_miles";
+				dist = "dist_miles";
+				unit = units;
 			} else if (units == "km") {
-				var dist = "dist_km";
-			} else { //allows the user to cancel without the prompt showing up again
+				dist = "dist_km";
+				unit = units;
+			} else if (units == null) { //allows the user to cancel without the prompt showing up again
 				return;
+			} else { //if the user inputs a random unit, the map output will simply be "undefined units"
+				dist = "undefined";
+				unit = "units";
 			}
 
 			var highwayLayer = $.getJSON("data/us_interstates.json", function (data) {
@@ -175,15 +157,16 @@
 					},
 					onEachFeature: function (feature, layer) {
 						var props = layer.feature.properties;
-						var length = layer.feature.properties[dist];
+						var length = layer.feature.properties[
+							dist]; //will vary based on the user's input
 						var popup = `<b>Highway: </b>${props["number"]}<br>
 						<b>Class: </b>${props["class"]}<br>
-						<b>Length: </b>${length} ${units}`;
+						<b>Length: </b>${length} ${unit}`;
 						layer.on('mouseover', function () {
 							layer.bindTooltip(popup, {
 								sticky: true //focuses the tooltip at the cursor
 							});
-							this.setStyle({
+							this.setStyle({ //highlights just the route in its entirety
 								color: 'red',
 								weight: 5
 							})
