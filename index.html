@@ -73,7 +73,6 @@
 
 <body>
 	<header>
-		<h1>Title Goes Here</h1>
 		<button id='units'>Click Here to Get Started!</button>
 	</header>
 
@@ -131,14 +130,12 @@
 
 		var dist = ""; //empty variables to hold information based on the user's input
 		var unit = "";
-
 		var button = document.getElementById("units");
 
-		button.addEventListener("click", function () {
 
+		button.addEventListener("click", function () {
 			var units = prompt('Enter the preferred unit of measurement',
 				'Enter "miles" or "km"'); //removed the do and while functions to prevent the persistent prompt
-
 			if (units == "miles") {
 				dist = "dist_miles";
 				unit = units;
@@ -151,7 +148,6 @@
 				dist = "undefined";
 				unit = "units";
 			}
-
 			var highwayLayer = $.getJSON("data/us_interstates.json", function (data) {
 				var dataLayer = L.geoJson(data, {
 					style: function (feature) {
